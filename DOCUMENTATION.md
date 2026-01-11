@@ -25,8 +25,8 @@
 
 The project demonstrates practical applications of embedding-based NLP models in a user-friendly Gradio interface.
 
-**Language:** Romanian  
-**Dataset:** Romanian Bible Paraphrase Dataset (~247,000 training pairs)  
+**Language:** Romanian
+**Dataset:** Romanian Bible Paraphrase Dataset (~247,000 training pairs)
 **Models Used:** Word2Vec (word embeddings) and Doc2Vec (paragraph embeddings)
 
 ---
@@ -54,7 +54,7 @@ The application loads the dataset dynamically using the HuggingFace `datasets` l
 from datasets import load_dataset
 
 dataset = load_dataset("andyP/ro-paraphrase-bible")
-text_columns = [col for col in dataset['train'].column_names 
+text_columns = [col for col in dataset['train'].column_names
                 if dataset['train'].features[col].dtype == 'string']
 col1, col2 = text_columns[0], text_columns[1]
 
@@ -104,12 +104,12 @@ To speed up preprocessing of 247,000+ sentences, spaCy's parallel processing was
 ```python
 processed_corpus = []
 
-for doc in tqdm(nlp.pipe(original_sentences_list, 
-                         batch_size=3000, 
+for doc in tqdm(nlp.pipe(original_sentences_list,
+                         batch_size=3000,
                          n_process=-1),
                 total=len(original_sentences_list),
                 desc="Parallel Tokenizing"):
-    tokens = [token.lemma_.lower() for token in doc 
+    tokens = [token.lemma_.lower() for token in doc
               if not token.is_punct and not token.is_space]
     processed_corpus.append(tokens)
 ```
@@ -134,8 +134,8 @@ w2v_model = Word2Vec(
     workers=4             # Number of parallel threads
 )
 
-w2v_model.train(processed_corpus, 
-                total_examples=len(processed_corpus), 
+w2v_model.train(processed_corpus,
+                total_examples=len(processed_corpus),
                 epochs=10)
 
 w2v_model.save("bible_ro_word2vec.model")
@@ -176,7 +176,7 @@ Context: [word_-2, word_-1, word_0, word_1, word_2]
 from gensim.models.doc2vec import Doc2Vec, TaggedDocument
 
 # Tag each document with its index
-tagged_data = [TaggedDocument(words=doc, tags=[str(i)]) 
+tagged_data = [TaggedDocument(words=doc, tags=[str(i)])
                for i, doc in enumerate(processed_corpus)]
 
 d2v_model = Doc2Vec(
@@ -189,8 +189,8 @@ d2v_model = Doc2Vec(
 )
 
 d2v_model.build_vocab(tagged_data)
-d2v_model.train(tagged_data, 
-                total_examples=d2v_model.corpus_count, 
+d2v_model.train(tagged_data,
+                total_examples=d2v_model.corpus_count,
                 epochs=d2v_model.epochs)
 
 d2v_model.save("bible_ro_doc2vec.model")
@@ -412,7 +412,7 @@ d2v_model = Doc2Vec.load("bible_ro_doc2vec.model")
 def preprocess(text: str) -> list[str]:
     """Preprocess text by tokenizing and lemmatizing."""
     doc = nlp(str(text))
-    return [token.lemma_.lower() for token in doc 
+    return [token.lemma_.lower() for token in doc
             if not token.is_punct and not token.is_space]
 ```
 
@@ -532,14 +532,14 @@ $$\text{Result} = \arg\max_w \cos(\vec{w}, \vec{\text{Analogy}})$$
 def create_demo() -> gr.Blocks:
     # Create theme
     theme = gr.themes.Soft(primary_hue="indigo", secondary_hue="blue")
-    
+
     # Create interface blocks
     with gr.Blocks(title="Bible Semantic Similarity") as demo:
         # Display title and description
         # Create accordion with model statistics
         # Create tabs for different operations
         # Bind callbacks to buttons
-    
+
     return demo
 ```
 
@@ -1052,5 +1052,5 @@ For issues or questions:
 
 ---
 
-**Last Updated:** January 2026  
+**Last Updated:** January 2026
 **Version:** 1.0
