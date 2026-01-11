@@ -7,6 +7,7 @@ from app.services import (
     compute_word_pair_similarity,
     find_similar_sentences,
     word_analogy,
+    get_model_info,
 )
 
 
@@ -16,6 +17,9 @@ def create_demo() -> gr.Blocks:
         primary_hue="indigo",
         secondary_hue="blue",
     )
+    
+    # Get model info for display
+    model_info = get_model_info()
 
     with gr.Blocks(title="Bible Semantic Similarity") as demo:
         gr.Markdown("""
@@ -25,6 +29,37 @@ def create_demo() -> gr.Blocks:
 
         **Models trained on:** Romanian Bible Paraphrase Dataset (~247,000 sentences)
         """)
+        
+        # Add dataset and model statistics section
+        with gr.Accordion("📊 Dataset & Model Information", open=False):
+            with gr.Row():
+                with gr.Column():
+                    gr.Markdown(f"""
+                    ### Dataset Statistics
+                    - **Total Unique Passages:** {model_info['dataset_size']:,}
+                    - **Training Pairs:** {model_info['total_training_pairs']:,}
+                    - **Language:** Romanian
+                    """)
+                with gr.Column():
+                    gr.Markdown(f"""
+                    ### Word2Vec Model
+                    - **Vocabulary Size:** {model_info['w2v']['vocab_size']:,} unique words
+                    - **Vector Dimension:** {model_info['w2v']['vector_dim']} dimensions
+                    - **Window Size:** {model_info['w2v']['window']} words
+                    - **Min Count:** {model_info['w2v']['min_count']}
+                    - **Training Epochs:** {model_info['w2v']['epochs']}
+                    - **Training Method:** CBOW (Continuous Bag of Words)
+                    """)
+                with gr.Column():
+                    gr.Markdown(f"""
+                    ### Doc2Vec Model
+                    - **Total Documents:** {model_info['d2v']['doc_count']:,}
+                    - **Vector Dimension:** {model_info['d2v']['vector_dim']} dimensions
+                    - **Window Size:** {model_info['d2v']['window']} words
+                    - **Min Count:** {model_info['d2v']['min_count']}
+                    - **Training Epochs:** {model_info['d2v']['epochs']}
+                    - **Training Method:** Paragraph Vectors (PV-DM)
+                    """)
 
         with gr.Tabs():
             # Tab 1: Similar Words
@@ -164,6 +199,11 @@ def create_demo() -> gr.Blocks:
         ---
         **Note:** This tool uses Word2Vec for word-level similarity and Doc2Vec for sentence-level similarity.
         Words are lemmatized before lookup (e.g., "Dumnezeu" → "dumnezeu").
+        
+        **Similarity Metrics:**
+        - **Cosine Similarity:** Measures the angle between vectors (0-1 scale, higher = more similar)
+        - **Vector Norm:** L2 norm of the vector (magnitude in semantic space)
+        - **Vector Statistics:** Mean and standard deviation of vector components
         """)
 
     # Store theme for launch
